@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.wangjian.syslog1.mapper.ProductMapper">
+
+    <insert id="insetAlipaymentOrderInfo">
+        insert into t_order_info
+            (
+             id,
+             trace_no,
+             total_amount,
+             order_num,
+             order_price,
+             product_id,
+             subject,
+             uaer_game_id,
+             user_phone,
+             create_time,
+             order_status,
+             pay_type,
+             service_range,
+             is_send
+             )
+            values
+            (
+            #{id},
+            #{traceNo},
+            #{totalAmount} ,
+            #{orderNum} ,
+            #{orderPrice} ,
+            #{productId} ,
+            #{subject} ,
+            #{userGameId} ,
+            #{userPhone} ,
+            SYSDATE(),
+            #{orderStatus},
+            #{payType},
+            #{serviceRange},
+             0
+            )
+
+    </insert>
+
+
+    <update id="updateOrderNotify">
+        update t_order_info set
+            alipay_trace_no = #{alipayTraceNo},
+            customer_id = #{customerId},
+            pay_time = #{payTime},
+            pay_amount = #{payAmount},
+            order_status = #{orderStatus},
+            update_time = SYSDATE()
+        WHERE trace_no = #{traceNo}
+    </update>
+
+    <update id="updateOrderSend">
+        update t_order_info set
+            is_send = #{sendStatus}
+        WHERE trace_no = #{outTradeNo}
+    </update>
+
+    <select id="getOrder" resultType="com.example.wangjian.syslog1.entity.OrderFrom">
+        select
+        id,
+        name,
+        address,
+        phone,
+        order_id as orderId
+        from T_ORDER_INFO
+    </select>
+
+
+    <select id="queryProductInfos" resultType="com.example.wangjian.syslog1.entity.ProductFrom">
+        SELECT t.id as id,t.product_name as name,t.product_amount as amount
+        FROM t_product t where t.id = #{id}
+    </select>
+
+    <select id="checkOrderSuccess" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM T_ORDER_INFO t where t.trace_no = #{out_trade_no} and t.order_status = 2
+    </select>
+
+    <select id="getOrderInfo" resultType="com.example.wangjian.syslog1.entity.GameUserFrom">
+        SELECT
+            t.uaer_game_id as userGameId,
+            t.service_range as serviceRange,
+            t.pay_amount as amount
+        FROM
+            t_order_info t
+        WHERE
+            t.trace_no = #{out_trade_no}
+
+    </select>
+
+</mapper>

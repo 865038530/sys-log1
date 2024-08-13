@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: springboot_union
+  datasource:
+    #url切换数据库之后如果对应数据库名称和路径有变动，需要修改url
+    url: jdbc:mysql://120.26.103.95:3306/shangyu-pay-prd?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: Wangjian2024@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+
+mybatis:
+  mapper-locations:  classpath:mapper/**/*.xml    #mapper文件位置
+  type-aliases-package: com.example.wangjian.syslog1.entity    #实体类所在包（别名）
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+alipay:
+  appId: 2021004164626225
+  appPrivateKey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCeps/IObtDleUKEWZNQQQjKkDj4WJ1bmDhIm1qATz08/jY0bNNTpKY+a9XrzfQWqpXtqCii/P4c1/CLyl4VfbHrIci6XZFbczira+rj/CYTklURRMgTgttmIznI0ZUOC66jz6hweNJl1Hcb5IGWkbRbV6NaFeytS8kmKOhdbjiEEFh11mQvwEm9rMQ7w76h/S70nYS7LgWTDmBmwCNvsmVGOE7Cxs93wB6Ox6/aYzdJrCggX3opbDZMPjicJCazLkgnItUs46HIREl8qdjZbi++utN0uEWujWfXKyMTgTECrJ8AfSI9/GWn034Wefd+KeZo5tVfy4SHTQioy4iT1ozAgMBAAECggEAWv9m8ntak7toMcwlF26RRvI3Yf2mkaCL5NXwV/r50a4WL5an91F3+FJOZkbUBqfaSJExtcn8V6clZ6XRbXoxH/ovULED63K9L89bkVXwNAvDN5ifDcp195imSPUMo8XN16fNzs385frrMzqzUP163SiUMRuGIbSWo7EBOdzh/Jdaswpkl7X+rJif/8CFPnjIH++5bqDnlloM0WBUnB72lGiT6X9pgcu8O+0ttR2DhTMpjBH1IqblF4uKOF2wO4Q9UvX1rb+SfN6mzRSWKzyPZEG7pFuoNrC3KSMsYnMGqz/t79TiwJTKxBteV3cp79lZMHOeSmczFTd5GxKPk/BqYQKBgQDVt46lP1elYIjW9fabQ5GIcJI44rE0Gzqi7OJNKuCCTWIrnr3YDWZOvWHe1M0ZMyqCUDcM4NSUJttyM4CyzGb8QwGEfNjkPVOK24S46sMeSpED/pOLxdaiUfBczrYM8IPDzCqpsGylV0mrZLyZw3+7DbtJuJ0+r/gpo1RBN1ZUOwKBgQC+CkZdNpglIARSryHhFOro1hLVA+wXlD+6G4Rlxc/BChKJoQTnGwYr9UF2tdYhg1ay2QSnnjBEhTfcqFFmWFEcQadxxGizHIietuGTbpr8MN/3zbTLNsIcSUe3UIYFpjv/Q8vjTizUWjUGMTxl9bqOCMMvEhr0YRsRiROaZo2KaQKBgQCukYz29dKFx2B/FdIl6P9LT4hg5uqQAV3YD16aYdeZF9SEhNnVTLywvIjhFzmgx+aFIziUUGHT0hmWIvORGN1WWPU4XzJa3K0M01qKIVjXuVjSxnOGzEcRt5R6em7CCwPWP0Lp8K4OMEqAsXxMrR/8jq7Y/O+UcPBoMn1z99uQWQKBgBa5qdJpveXqnzm4Aagl1TWEq/nXHztumfRKaBm3fvGJn8/fdnOgcqt9B5gHhJS7XPnEI99bdlArUhPL+PfxJbnoS/q5zv9kMR4xpmX3+wafXZkHe1A1ux6g0LemJHC2gUQ0OkRzS78VDnQwHRXgPa/Qcm7Fjn2cwxzktHhpPRHJAoGAb2BmdlOPD97YQ8mt/CAtw5gnNFA7LXk49ZHA0Mlvhm6p4blEdITl9dV5M3LIkHuNC76rB97X886DvAWCGz2/TNF6FlghUVCg5fuuBGVhXi7mUbP0/oldhMfkVP5mslOcfT8l2QahUpuTEuDxyhgb8dV2777OPD9jixbywVGm0GY=
+  alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq7GKe5t938wP+GXvYkEqFaGUznhRvDtvgiNHHrW1QJ3FMU3aRHDjf3y7UGnTjr9/cTxr2ZSiKLFZO00yoEmx90GMH+oWqME64esmujUdZmMguHeYf011TlA2YxtcSqlINTvQcGRjJB6bTIYOVHFDjULTpOetEr37KA6chHhl9bxJZd3HTjVCc9pkcipvkGn7+Wl64quCbT5osFmXwUGGy/9Ctr5yZs6gSQnLO+FXSdslvY+bNN2wQgzg3AFMHE5oEDLKfILLXKxcxqG0ni5/TB11hAzPY8s/nWAD6/a4CX6DPjayxHAqsYmi91I7epUL6xFinUmT/kh7a0a3gNgPAwIDAQAB
+  notifyUrl: http://yuhangzhifu.cn:8331/log/alipay/notify
+  gateWay: https://openapi.alipay.com/gateway.do
+
+wechat:
+  pay:
+    mchId: 1682702563
+    privateKeyPath:   /shangyu-application/private-key/apiclient_key.pem
+    merchantSerialNumber: 595537B7F38528B1C5204F71A1CD30EC3A3447AF
+    apiV3key: f30fe11545b3beb62b3e5fb9171cd0a5
+    platformCertPath: /shangyu-application/private-key/wechatpay_5BC5958BD5AEAF67149B3AAEDB741AA8D7B8F6D5.pem
+
+    appId: wxf66bcdbe7d24ba16
+    notifyUrl: http://yuhangzhifu.cn:8331/log/wxpay/notify
+
