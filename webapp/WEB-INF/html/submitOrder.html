@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title></title>
+  <link href="./assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 微软雅黑,'Microsoft Yahei',黑体;
+    }
+
+    .content {
+      padding: 20px;
+      height: auto;
+      overflow: hidden;
+    }
+
+    .btn {
+      border-radius: 3px;
+    }
+
+    .btn-primary {
+      background-color: #39ABD2;
+      border: 1px solid #39ABD2
+    }
+
+    .btn-success {
+      background-color: #5BB85C;
+    }
+
+    h1 {
+      background: #FFFAE5;
+      margin: 0;
+      padding: 15px 20px;
+      font-size: 18px;
+      text-align: center;
+      border-bottom: 1px solid #FFDC00;
+      color: #FE6600
+    }
+
+    .box {
+      background: #EFFFFE;
+      border: 1px solid #39ABD2;
+      padding: 15px 20px;
+      border-radius: 3px
+    }
+
+    .box .title {
+      color: #FE6600;
+      font-size: 12px
+    }
+
+    .box .title strong {
+      font-size: 14px;
+      color: #337AB7;
+    }
+
+    .box .body ol {
+      margin: 0;
+      padding: 0;
+      padding-left: 12px
+    }
+
+    .box .body ol li {
+      line-height: 20px
+    }
+
+    .box .body ol li,.box .body ol li a {
+      color: #666;
+      font-size: 12px
+    }
+
+    .mt20 {
+      margin-top: 20px
+    }
+
+    ul {
+      list-style: none
+    }
+
+    ul li {
+      line-height: 30px
+    }
+
+    ul li strong {
+      color: #C3403A
+    }
+
+    .info {
+      background: url(./assets/images/security.png) 90% 30% no-repeat;
+      background-size: 84px 84px
+    }
+
+    @media all and (max-width: 500px) {
+      h1 {
+        font-size:12px
+      }
+
+      .box {
+        display: none
+      }
+
+      .mt20 {
+        margin-top: 0px
+      }
+
+      .content {
+        padding: 10px;
+        padding-top: 10px
+      }
+
+      .info {
+        background-position: 100% 30%;
+        background-size: 48px 48px
+      }
+
+      ul li img {
+        width: 100px
+      }
+    }
+  </style>
+  <script src="./assets/js/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+<h1>请保存好订单号，方便日后查询交易记录。</h1>
+<div class="content">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 info">
+        <ul>
+
+          <li>
+            支付金额：<strong>3.03</strong>
+            元
+          </li>
+          <li>
+            支付方式：<img src="./assets/images/huabei.gif" align="absmiddle">
+          </li>
+          <li>商品名称：3元CDK-祝君好运</li>
+          <li>
+            购买数量：<strong>1</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="box">
+      <div class="title">
+        <strong>免责声明</strong>
+        &nbsp;向陌生人付款，请注意交易风险！
+      </div>
+      <div class="body">
+        <ol>
+          <li>由此产生的交易纠纷由双方自行处理，与宇环软件无关</li>
+          <li>
+            <a href="/news/view?id=49" target="_blank">支付超时、支付失败、或已扣费显示“未付款”的说明</a>
+          </li>
+          <li>
+            <a href="/orderquery?orderid=1462A1604755E70F" target="_blank">使用购买时留下的“联系方式”可以查出所有相关的交易记录</a>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="row mt20">
+      <div class="col-xs-6">
+        <a class="btn btn-primary btn-block back" href="javascript:;" onclick="javascript:parent.$.nyroModalRemove()">
+          <span class="glyphicon glyphicon-refresh"></span>
+          &nbsp;<span class="t">返回重选</span>
+        </a>
+      </div>
+      <div class="col-xs-6">
+        <a class="btn btn-success btn-block submit" href="http://www.9431u.cn/pay/alidmf_scan/send.php?price=3.03&orderid=1462A1604755E70F&payorderid=20240723195639179368&pid=58&sign=fe365ac073629433a86954957f3d15e2ed76f5e7" target="_blank">
+          <span class="glyphicon glyphicon-shopping-cart"></span>
+          &nbsp;<span class="t">立即付款</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(function() {
+    $('.submit').click(function() {
+      setTimeout(translation, 2000);
+    });
+  });
+  function translation() {
+    $('.submit span.t').text('查看结果');
+    $('.back span.t').text('继续购买');
+    $('.submit').attr('href', '/orderquery?orderid=1462A1604755E70F');
+  }
+</script>
+</body>
+</html>

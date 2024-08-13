@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宇环软件</title>
+    <link rel="icon" href="/assets/images/biao.png">
+    <link href="./assets/css/nyro.css" rel="stylesheet" type="text/css">
+    <script src="./assets/js/jquery.min.js" type="text/javascript"></script>
+    <script src="./assets/js/nyro.js" type="text/javascript"></script>
+    <script src="./assets/js/layui.js" type="text/javascript"></script>
+    <script src="./assets/js/app.js" type="text/javascript"></script>
+    <script src="./assets/js/woodyapp.js" type="text/javascript"></script>
+    <link href="./assets/css/pay.css" rel="stylesheet" type="text/css">
+    <link href="./assets/css/iconfont.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./assets/css/izitoast.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link href="./assets/css/icons.css" rel="stylesheet" type="text/css">
+    <script src="./assets/js/izitoast.min.js"></script>
+    <style>
+        .choose .goods .item{min-width:unset;width:220px;height:auto;padding-top:5px;padding-bottom:10px}
+    </style>
+    <script>
+        var is_pwdforbuy=0;
+        var is_user_popup=0;
+        var userid=15384;
+        var cateid=4773;
+        var goodid=0;
+        var is_contact_limit=1;
+        var is_contact_limit_default=1;
+    </script>
+    <style type="text/css">
+        *{font-family: 'Courier New', Courier, monospace,'微软雅黑','Microsoft Yahei','PingFang SC';}
+        body{background-image:url(assets/images/bgs-p.jpeg);background-attachment: fixed;background-size:auto 100% }
+        .lab1 input {
+            display: none !important;
+        }
+        .shop .qq{border:1px solid #396EF9;background:rgba(57,110,249,0.8);border-radius:5px;width:180px;justify-content: center;height:26px;margin-left:20px;}
+        .shop .qq{display:block}
+        .shop .qq a{color:#BFBFBF;}
+        .shop .qq img{height:26px;vertical-align:middle}
+        .shop .qq:hover{color:#2a62ff}
+        .choose .panel{background:rgba(0,0,0,.6)}
+        .title,.choose .goods .title{color:#fff}
+        .choose .goods .item{background:rgba(0,0,0,.7)}
+        .choose .goods .item .name{color:#fff}
+        .choose .goods .item.active .name{color:#fff}
+        .form-field .label,.form-field .remark{color:#fff}
+        .shop-notice{background:rgba(0,0,0,.6);color:#fff}
+        .paytype .title,.choose-tip #remark{color:#fff}
+        .submit-bar{background:rgba(0,0,0,.9);color:#fff}
+        [class*=css-icon][class*=circle]{background:#fff;}
+        .choose .goods .item .price .number{margin-right:10px}
+        .btn1{ width:100%; height:285px; background:url("./assets/images/btn-bg.png") repeat-x;}
+        .btnMain1{ width:1280px; height:285px; margin:0 auto;}
+        .btTxt1{ width:100%; height:50px; line-height:50px; text-align:center; color:#A3A3A3}
+    </style>
+    <script>
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $('#categorys .item').click(function () {
+                $('#categorys .item').removeClass('active');
+                $(this).addClass('active');
+                selectcateid2($(this).attr('value'));
+            });
+
+            $('body').on('click','#goodslist .item',function () {
+                $('#goodslist .item').removeClass('active');
+                $(this).addClass('active');
+                //selectgoodid2($(this).attr('value'));
+            });
+
+            $('body').on('click','#goodslist .item .show-dis-price',function(){
+                layer.open({
+                    title:'批发价格',
+                    area:'300px',
+                    btnAlign: 'c',
+                    content:$('#good_discount_list').html()
+                });
+            });
+
+            iziToast.settings({
+                maxWidth: '500px',
+                titleSize: '18px',
+                titleLineHeight: '22px',
+                timeout: 3000,
+                resetOnHover: false,
+                position: 'bottomRight',
+                transitionIn: 'fadeInLeft',
+                transitionOut: 'fadeOutRight',
+                zindex: 999999999999,
+                close: false
+            });
+        });
+
+        function showToast(type, title, message) {
+            if (type == 'success') {
+                iziToast.success({ //绿色
+                    title: title,
+                    message: message,
+                });
+            }
+            if (type == 'error') {
+                iziToast.error({ //红色
+                    title: title,
+                    message: message,
+                });
+            }
+            if (type == 'info') {
+                iziToast.info({
+                    title: title,
+                    message: message,
+                });
+            }
+            if (type == 'warning') {
+                iziToast.warning({
+                    title: title,
+                    message: message,
+                });
+            }
+        }
+
+        function selectcateid2(cateid) {
+            $("[name=couponcode]").val("");
+            $('#loading').show();
+            //$('#categorys .active').removeClass('active');
+            //$('#categorys .category-' + cateid).addClass('active');
+            let html = '';
+            if (cateid > 0) {
+                $('#cateid').val(cateid);
+                $.post('/ajax/getgoodlist2', {
+                        cateid: cateid,
+                    },
+                    function (ret) {
+                        if (ret.status == 0) {
+                            $('#goodslist').html('');
+                            $('[name="goodid"]').val('');
+                            layer.msg('此分类下没有商品！');
+                        } else {
+                            showToast('info', '', '请选择商品！');
+                            $('#loading').hide();
+                            var data=ret.data;
+                            var html='';
+                            for(var i in data){
+                                html+='<div class="item good_'+data[i].id+'" value="'+data[i].id+'"><div class="name">'+data[i].goodname+'</div><div class="price">￥<span class="number">'+data[i].price+'</span><span class="show-dis-price" id="good_discount_'+data[i].id+'" style="display: none; color: #648ff7;">(查看批发价格)</span></div><div class="stores"><span id="goodInvent_'+data[i].id+'" style="width: 110px"><span></span></span></div><img src="./assets/images/icon-right-fill.png"></div>'
+                            }
+                            $('#goodslist').html(html);
+                            selectgoodid2(data[0].id);
+                        }
+                    },'json');
+            }
+            getrate();
+            $('.pinfo1').show();
+            $('.pinfo2').hide();
+            $('.pinfo3').hide();
+        }
+
+        function selectgoodid2(goodid) {
+            $('#goodslist .item.active').removeClass('active');
+            $('#goodslist .item.good_' + goodid).addClass('active');
+            $('#goodid').val(goodid);
+            $('.stores span input').remove();
+
+            if ($("[name=couponcode]").val() != "") {
+                checkCoupon();
+            }
+            // $.post(
+            //     "/ajax/getgoodinfo", {
+            //         goodid: goodid
+            //     },
+            //     function (data) {
+            //         if (data) {
+            //             $("#price").text(data.price);
+            //             $("#remark").html(data.good_detail);
+            //             $("#gonggao").html(data.gonggao);
+            //             $('[name=feePayer]').val(data.fee_payer);
+            //             $('.submit-bar .goods-name span').text($("#goodslist .item.good_"+goodid+" .name").text());
+            //             limit_quantity = data.limit_quantity;
+            //             if (data.remark != "") {
+            //                 $("#buy_border1").css("display", "block");
+            //             }
+            //             if (data.is_coupon == 0) {
+            //                 //取消掉优惠券码
+            //                 $("[name=couponcode]").val("");
+            //                 $("#goodCoupon").hide();
+            //             }
+            //             if (data.is_coupon == 1) {
+            //                 $("#goodCoupon").show();
+            //             }
+            //             if (data.is_pwdforsearch == 0) {
+            //                 $("#pwdforsearch2").hide();
+            //                 $("#pwdforsearch1").hide();
+            //             }
+            //             if (data.is_pwdforsearch == 1) {
+            //                 $("#pwdforsearch2").hide();
+            //                 $("#pwdforsearch1").show();
+            //             }
+            //             if (data.is_pwdforsearch == 2) {
+            //                 $("#pwdforsearch1").hide();
+            //                 $("#pwdforsearch2").show();
+            //             }
+            //             //显示批发价格
+            //             if (data.is_discount == 1) {
+            //                 $("#isdiscount").css("display", "inline");
+            //                 $("#isdiscount_span").css("display", "inline");
+            //                 $('#good_discount_'+goodid).show();
+            //             }
+            //             //隐藏批发价格标签
+            //             if (data.is_discount == 0) {
+            //                 $("#isdiscount_span").css("display", "none");
+            //                 $('#good_discount_'+goodid).hide();
+            //             }
+            //             if (data.limit_quantity > 0) {
+            //                 $("[name=quantity]").val(data.limit_quantity);
+            //                 $("[name=quantity]").attr({
+            //                     title: "本商品最少购买数量为" + limit_quantity + "件！"
+            //                 });
+            //                 $("#limit_quantity_tip").show();
+            //             } else {
+            //                 $("[name=quantity]").val(1);
+            //                 $("[name=quantity]").removeAttr("title");
+            //                 $("#limit_quantity_tip").hide();
+            //             }
+            //             $('[name=quantity]').attr('min_quantity',data.limit_quantity);
+            //             $('[name=quantity]').attr('max_quantity',data.max_quantity);
+            //             is_contact_limit = data.is_contact_limit;
+            //             $("[name=contact]").attr({placeholder: data.contact_limit});
+            //             $("[name=danjia]").val(data.price);
+            //             $("#goodInvent_"+goodid).html(data.goodinvent);
+            //             $("[name=is_discount]").val(data.is_discount);
+            //             getrate();
+            //             goodDiscount();
+            //             $(".pinfo1").hide();
+            //             $(".pinfo2").show();
+            //             $(".pinfo3").hide();
+            //             if (data.is_pwdforbuy == 1) {
+            //                 getPwdforbuy(goodid);
+            //             }
+            //         }
+            //     },
+            //     "json"
+            // );
+        }
+
+
+        function changequantity2() {
+            goodDiscount();
+            goodschk();
+            var quantity = $("input[name='quantity']").val();
+            var kucun = $("input[name='kucun']").val();
+            if (quantity < 1) {
+                showToast('error', '', '您忘了输入购买数量！');
+                $('[name=quantity]').focus();
+
+            } else if ((quantity - kucun) > 0) {
+                showToast('error', '', '您输入的购买数量超过库存数量，请重新输入！');
+                $('[name=quantity]').focus();
+            } else if ((quantity >= 1 && quantity - kucun) <= 0) {
+                showToast('success', '', '您输入的购买数量 填写正确^_^');
+            }
+
+            var $q=$('[name=quantity]');
+            if($q.val()==0){
+                $q.val(1);
+            }
+            var num=parseInt($q.val());
+            var allow_quantity=parseInt($q.attr('min_quantity'));
+            if(allow_quantity && num < allow_quantity){
+                $q.val(allow_quantity);
+                showToast('error', '', '当前商品最低购买数量为 '+allow_quantity+' 张');
+                return false;
+            }
+            var max_quantity=parseInt($q.attr('max_quantity'));
+            if(max_quantity && num > max_quantity){
+                $q.val(max_quantity);
+                showToast('error', '', '当前商品最高购买数量为 '+max_quantity+' 张');
+                return false;
+            }
+        }
+
+        function checkcontact2() {
+            var contact = $("input[name='contact']").val();
+            if ($("input[name='is_rev_sms']").is(":checked")) {
+                var reg = /^(\d){11}$/;
+                if (contact.length < 1) {
+                    showToast('error', '', '手机号码 必填哦！');
+                    $('[name=contact]').focus();
+                }
+                if ((contact.length >= 1 && contact.length < 11) || (contact.length >= 1 && !reg.test(contact))) {
+                    showToast('error', '', '您输入的手机号码 不是11位数字！');
+                    $('[name=contact]').focus();
+                } else if (contact.length == 11 && reg.test(contact)) {
+                    showToast('success', '', '您输入的手机号码 填写正确^_^');
+                }
+            } else {
+                if (!contact || contact == null || contact == "" || contact == 0) {
+                    showToast('error', '', '联系方式 必填哦！');
+                    $('[name=contact]').focus();
+                } else if (contact.length >= 6) {
+                    showToast('success', '', '您输入的联系方式 填写正确^_^');
+                } else {
+                    showToast('error', '', '您输入的联系方式 少于6位！');
+                    $('[name=contact]').focus();
+                }
+            }
+        }
+
+
+
+        function checkis_rev_sms2() {
+            $('#email').parent().removeClass('checked');
+            var contact = $("input[name='contact']").val();
+            if ($("input[name='is_rev_sms']").is(":checked")) {
+                var reg = /^(\d){11}$/;
+                if (contact.length == 11 && reg.test(contact)) {
+                    showToast('success', '', '您输入的手机号码 填写正确^_^');
+                } else {
+                    showToast('info', '', '请重新输入11位数字 填写手机号码哦');
+                    $('[name=contact]').focus();
+                }
+            } else {
+                if (contact.length >= 6) {
+                    showToast('success', '', '您输入的联系方式 填写正确^_^');
+                } else if (!contact || contact == null || contact == "" || contact == 0) {
+                    showToast('error', '', '联系方式 必填哦！');
+                    $('[name=contact]').focus();
+                } else {
+                    showToast('error', '', '您输入的联系方式 少于6位！');
+                    $('[name=contact]').focus();
+                }
+            }
+
+        }
+
+        function checkis_email2() {
+            $('#is_rev_sms').parent().removeClass('checked');
+            $('.email_show').toggle();
+            var email = $("input[name='email']").val();
+            var reg = /^([0-9a-zA-Z_-])+@([0-9a-zA-Z_-])+((\.[0-9a-zA-Z_-]{2,3}){1,2})$/;
+            if ($("input[name='isemail']").is(":checked")) {
+                if (reg.test(email)) {
+                    showToast('success', '', '您输入的邮箱地址 填写正确^_^');
+                } else if (email.length > 0 && !reg.test(email)) {
+                    showToast('error', '', '您输入的邮箱地址 填写有误！');
+                    $('[name=email]').focus();
+                } else {
+                    showToast('info', '', '邮箱地址 必填哦！');
+                    $('[name=email]').focus();
+                }
+                $('[name=sms_price]').val(0);
+                $('.choose_sms').removeClass('on');
+                $('.choose_email').addClass('on');
+                $('.email-show').show();
+                $("#is_rev_sms").prop("checked", false);
+            } else {
+                $('.choose_email').removeClass('on');
+                $('.email-show').hide();
+            }
+            goodDiscount();
+            goodschk();
+            updateContactLimit();
+        }
+
+        function checkemail2() {
+            var email = $("input[name='email']").val();
+            var reg = /^([0-9a-zA-Z_-])+@([0-9a-zA-Z_-])+((\.[0-9a-zA-Z_-]{2,3}){1,2})$/;
+            if (!email || email == null || email == "" || email == 0) {
+                showToast('error', '', '邮箱地址 必填哦！');
+                $('[name=email]').focus();
+            } else if (reg.test(email)) {
+                showToast('success', '', '您输入的邮箱 填写正确^_^');
+            } else {
+                showToast('error', '', '您输入的邮箱地址 填写有误！');
+                $('[name=email]').focus();
+            }
+        }
+
+        function checkpwdsearch2() {
+            var pwdforsearch1 = $("input[name='pwdforsearch1']").val();
+            if (!pwdforsearch1 || pwdforsearch1 == null || pwdforsearch1 == "" || pwdforsearch1 == 0) {
+                showToast('warning', '', '取卡密码 必填哦！');
+                $('[name=pwdforsearch1]').focus();
+            } else if (pwdforsearch1.length < 6 || pwdforsearch1.length > 20) {
+                showToast('error', '', '您输入的取卡密码 不是6-20位！');
+                $('[name=pwdforsearch1]').focus();
+            }
+        }
+
+        function checkpwdsearch1() {
+            var pwdforsearch2 = $("input[name='pwdforsearch2']").val();
+            if (!pwdforsearch2 || pwdforsearch2 == null || pwdforsearch2 == "" || pwdforsearch2 == 0) {
+                showToast('info', '', '如有需要 取卡密码 可以填哦');
+            } else if ((pwdforsearch2.length >= 1 && pwdforsearch2.length < 6) || (pwdforsearch1.length > 20)) {
+                showToast('error', '', '您输入的取卡密码 不是6-20位！');
+                $('[name=pwdforsearch1]').focus();
+            } else if (pwdforsearch2.length >= 6 && pwdforsearch2.length <= 20) {
+                showToast('success', '', '您输入的取卡密码 填写正确^_^');
+            }
+        }
+
+        function tipCoupon() {
+            var couponcode = $("input[name='couponcode']").val();
+            if (!couponcode || couponcode == null || couponcode == "" || couponcode == 0) {
+                showToast('info', '', '如有优惠卷 可以使用哦');
+            } else if (couponcode.length >= 1 && couponcode.length != 16) {
+                showToast('error', '', '您输入的优惠券 不是16位！');
+                $('[name=couponcode]').focus();
+            } else if (couponcode.length == 16) {
+                showToast('success', '', '您输入的优惠券 填写正确^_^');
+            }
+        }
+
+        function checkform2() {
+            var quantity = $("input[name='quantity']").val();
+            var kucun = $("input[name='kucun']").val();
+            if (quantity < 1) {
+                showToast('error', '', '您忘了输入购买数量！');
+                return false;
+            } else if ((quantity - kucun) > 0) {
+                showToast('error', '', '输入的购买数量超过库存数量，请重新输入！');
+                return false;
+            }
+            var contact = $("input[name='contact']").val();
+            if ($("input[name='is_rev_sms']").is(":checked")) {
+                var reg = /^(\d){11}$/;
+                if (contact.length < 11 || !reg.test(contact)) {
+                    showToast('error', '', '您输入的手机号码 不是11位数字！');
+                    return false;
+                }
+            } else {
+                if (!contact || contact == null || contact == "" || contact == 0) {
+                    showToast('error', '', '您忘了填写联系方式！');
+                    return false;
+                } else if (contact.length < 6) {
+                    showToast('error', '', '您输入的联系方式 少于6位！');
+                    return false;
+                }
+            }
+            if ($('#email').is(":checked")) {
+                var email = $("input[name='email']").val();
+                var reg = /^([0-9a-zA-Z_-])+@([0-9a-zA-Z_-])+((\.[0-9a-zA-Z_-]{2,3}){1,2})$/;
+                if (!email || email == null || email == "" || email == 0) {
+                    showToast('error', '', '\'邮箱地址 必填哦！');
+                    return false;
+                } else if (email.length >= 1 && !reg.test(email)) {
+                    showToast('error', '', '您输入的邮箱地址 填写有误！');
+                    return false;
+                }
+            }
+            if ($('#pwdforsearch1').is(":visible")) {
+                var pwdforsearch1 = $("input[name='pwdforsearch1']").val();
+                if (!pwdforsearch1 || pwdforsearch1 == null || pwdforsearch1 == "" || pwdforsearch1 == 0) {
+                    showToast('error', '', '请填写取卡密码！');
+                    return false;
+                } else if (pwdforsearch1.length < 6 || pwdforsearch1.length > 20) {
+                    showToast('error', '', '请填写6-20位取卡密码！');
+                    return false;
+                }
+            }
+            if ($('#pwdforsearch2').is(":visible")) {
+                var pwdforsearch2 = $("input[name='pwdforsearch2']").val();
+                if ((pwdforsearch2.length >= 1 && pwdforsearch2.length < 6) || (pwdforsearch2.length > 20)) {
+                    showToast('error', '', '您输入的取卡密码 不是6-20位！');
+                    return false;
+                }
+            }
+            var couponcode = $("input[name='couponcode']").val();
+            if (couponcode.length >= 1 && couponcode.length != 16) {
+                showToast('error', '', '您输入的优惠券 不是16位！');
+                return false;
+            } else {
+                showToast('success', '', '您输入全部正确^_^ 正在提交订单...');
+                return true;
+            }
+        }
+    </script>
+</head>
+
+<body>
+<div class="header">
+    <div class="wrapper">
+        <div class="shop" style="display:flex;flex-direction:row">
+            <div class="name"><img src="./assets/images/shop_img.png" style="width:30px;vertical-align:middle"> 宇环软件</div>
+<%--            <div class="qq">--%>
+<%--                <a href="//wpa.qq.com/msgrd?v=1&uin=624088877&site=www.9431u.cn&menu=yes" target="_blank"><img src="./assets/images/icon-kefu.png" class="icon" />商家QQ：624088877</a>--%>
+<%--            </div>--%>
+        </div>
+<%--        <div class="header-nav">--%>
+<%--            <a class="item on" target="_blank" href="/orderquery"><img--%>
+<%--                    src="./assets/images/icon-search.png" />购买记录</a>--%>
+<%--            <a class="item on" target="_blank" href="/report"><img--%>
+<%--                    src="./assets/images/icon-tousu.png" />投诉订单</a>--%>
+<%--            <a class="item on" target="_blank" href="/report/search"><img--%>
+<%--                    src="./assets/images/icon-tousu.png" />投诉进度/撤诉</a>--%>
+<%--        </div>--%>
+    </div>
+</div>
+<div class="wrapper">
+    <div class="shop-notice">
+        <div class="title">店铺公告</div>
+        <div  id="notice"></div>
+    </div>
+</div>
+
+
+
+    <div class="choose">
+        <div class="wrapper">
+            <div class="choose-wrap">
+                <div class="choose-form">
+                    <div class="panel">
+                        <input type="hidden" name="sms_price" value="0">
+                        <input type="checkbox" style="display: none" name="isagree" value="true" checked>
+                        <input type="hidden" name="userGame" value="${userGame}">
+                        <input type="hidden" name="token" value="1721731515">
+                        <input type="hidden" name="cardNoLength" value="0">
+                        <input type="hidden" name="cardPwdLength" value="0">
+                        <input type="hidden" name="paytype" value="bank">
+                        <input type="hidden" name="is_discount" id="is_discount" value="0">
+                        <input type="hidden" name="coupon_ctype" value="0">
+                        <input type="hidden" name="coupon_value" value="0">
+                        <input type="hidden" name="sms_price" value="0">
+                        <input type="hidden" name="paymoney" value="">
+                        <input type="hidden" name="danjia" value="">
+                        <input type="hidden" name="cateid" id="cateid" value="4773">
+                        <input type="hidden" name="goodid" id="goodid" value="0">
+
+                        <div style="display: inline-block;vertical-align:top;">
+                            <div class="title"><img src="./assets/images/icon-category.png" align="top" /> 选择分类</div>
+                            <div class="category">
+                                <div class="categorys" id="categorys">
+
+                                    <div class="item active" value="4773">
+                                        山宇-CDK<img src="./assets/images/icon-select.png" />
+                                    </div>
+
+                                    <div class="item" value="4773">
+                                        山宇-游戏币<img src="./assets/images/icon-select.png" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="goods">
+                                <div class="title">商品名称</div>
+                                <div class="list" id="goodslist">
+
+                                    <div class="item good_priceb4a561ed-6a4c-473f-8841-c79b3c6dd186 active" value="b4a561ed-6a4c-473f-8841-c79b3c6dd186">
+                                        <div class="name">够买6元魔石</div>
+                                        <div class="price">￥<span class="number">6.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15062" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_price715aa3c92dbc0f1ef5b2c825cb13232a" value="715aa3c92dbc0f1ef5b2c825cb13232a">
+                                        <div class="name">够买30元魔石</div>
+                                        <div class="price">￥<span class="number">30.00</span>
+                                            </div><div class="stores"><span id="goodInvent_15060" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_pricec2a1de8b-b118-1906-7981-1ea7058c4679" value="c2a1de8b-b118-1906-7981-1ea7058c4679">
+                                        <div class="name">够买68元魔石</div>
+                                        <div class="price">￥<span class="number">68.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15063" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_pricef377e4df7b87410127ee94e9f6aaacce" value="f377e4df7b87410127ee94e9f6aaacce">
+                                        <div class="name">够买199元魔石</div>
+                                        <div class="price">￥<span class="number">199.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15061" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_price7b4a3e16-63a5-cc19-3ee2-7f7c3fe6ac7e" value="7b4a3e16-63a5-cc19-3ee2-7f7c3fe6ac7e">
+                                        <div class="name">够买328元魔石</div>
+                                        <div class="price">￥<span class="number">328.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15064" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_price74915548-9a96-b785-2b31-5f006e1eb795" value="74915548-9a96-b785-2b31-5f006e1eb795">
+                                        <div class="name">够买648元魔石</div>
+                                        <div class="price">￥<span class="number">648.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15065" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+                                    <div class="item good_pricef377e4df7b4583187410127ee94e9f6aaacce" value="f377e4df7b4583187410127ee94e9f6aaacce">
+                                        <div class="name">够买998元魔石</div>
+                                        <div class="price">￥<span class="number">998.00</span>
+                                        </div><div class="stores"><span id="goodInvent_15066" style="width: 110px">
+                                        <span style="color:green">库存999张</span>
+                                        <input type="hidden" name="kucun" value="9999">
+                                        <input type="hidden" name="service_fee" value="0">
+                                        <input type="hidden" name="serviceFee" value="0"></span></div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div id="good_discount_list" style="display:none"><dl></dl></div>
+
+                            <div class="choose-tip">
+                                <span class="title"><img src="./assets/images/icon-chat.png" />产品说明：</span>
+                                <span id="remark"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="panel info">
+                        <div class="title"><img src="./assets/images/icon-lanzi.png" /> 填写信息/购买方式
+                        </div>
+                        <div class="form-field">
+                            <div class="label"><span class="required">*</span>联系方式 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input type="text" onmouseout="checkcontact2()" name="contact"
+                                           placeholder="请填写手机号 订单查询的重要凭证!" value=""/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-field" id="pwdforsearch1" style="display: none;">
+                            <div class="label"><span class="required">*</span>取卡密码 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input onmouseout="checkpwdsearch2()" onblur="is_pwdforsearch()" type="text"
+                                           name="pwdforsearch1" placeholder="[必填]请输入取卡密码（6-20位）">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-field" id="pwdforsearch2" style="display: none;">
+                            <div class="label"><span class="required">*</span>取卡密码 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input onmouseout="checkpwdsearch2()" onblur="is_pwdforsearch()" type="text"
+                                           name="pwdforsearch2" placeholder="[选填]请输入取卡密码（6-20位）">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <div class="label">所在大区 </div>
+                            <div class="value notice-type">
+                                <div class="choose_sms">
+                                    <label class="lab1">
+                                        <select id="fruits" name="serviceRange">
+                                            <option value="1">一区</option>
+                                            <option value="2">二区</option>
+                                            <option value="3">三区</option>
+                                            <option value="4">四区</option>
+                                            <option value="5">五区</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <div class="label"><span class="required">*</span>游戏账号 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input type="text"  name="userRole"  placeholder="请填写游戏账号" value=""/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-field email-show" style="display: none;">
+                            <div class="label"><span class="required">*</span>邮箱地址 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input type="text" onmouseout="checkemail2()" name="email"
+                                           placeholder="填写你常用的邮箱地址" />
+                                </div>
+                            </div>
+                            <div class="remark" style="color: red;">注：如果没收到邮件，请在邮件垃圾箱查找。</div>
+                        </div>
+
+                        <div class="form-field" id="goodCoupon" style="display: none;">
+                            <div class="label">优惠券 </div>
+                            <div class="value">
+                                <div class="input">
+                                    <input type="text" name="couponcode" placeholder="请填写你的优惠券"
+                                           onblur="checkCoupon2()" onmouseout="tipCoupon()">
+                                </div>
+                            </div>
+                            <div class="remark" id="checkcoupon111" style="display:none; color: red"><img
+                                    src="./assets/images/load.gif"> 正在查询...</div>
+                        </div>
+
+                        <div class="form-field" id="couponcode" style="display: none;">
+                            <div class="label">优惠券详情 </div>
+                            <div class="value">
+                                <span id="checkcoupon" style="display:none">正在查询...</span>
+                            </div>
+                        </div>
+
+                        <div class="paytype">
+                            <div class="title">选择支付方式</div>
+                            <div class="items">
+
+                                <label for="pay_item_58" class="paytype-item" data-pid="58">
+                                    <div style="background: white;">
+                                        <label>
+                                            <input id="pay_item_58" name="pid" style="display:none;border:0;" value="58" type="radio">
+                                            <img src="./assets/images/huabei.gif" alt="支付宝2" align="absmiddle">
+                                        </label>
+                                    </div>
+                                </label>
+                                <label for="pay_item_63" class="paytype-item" data-pid="63">
+                                    <div style="background: white;">
+                                        <label>
+                                            <input id="pay_item_63" name="pid" style="display:none;border:0;" value="63" type="radio">
+                                            <img src="./assets/images/wxscan.gif" alt="微信扫码nuofan" align="absmiddle">
+                                        </label>
+                                    </div>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <input type="hidden" name="is_pwdforsearch2">
+
+                    <input type="hidden" name="is_coupon" value="">
+                    <div class="choose-item" style="display: none;">
+                        <div class="choose-left">折价率： </div>
+                        <div class="choose-rigt">
+                            <span class="rate">100</span><span>%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="copyright" style="width:100%;color:#999"></div>
+
+    <div style="height: 80px;"></div>
+    <div class="submit-bar" style="bottom: 50px;">
+        <div class="wrapper">
+            <div class="goods-name">
+                <img src="./assets/images/icon-card.png" />
+                <span></span>
+            </div>
+            <div class="total">
+                <div class="number">
+
+                    <span id="quantityex" class="css-icon-delete-circle" style="width: 30px;height:30px;"></span>
+                    <input type="text" name="quantity" onkeyup="this.value=this.value.replace(/\D/g,'')" value="1" />
+                    <span id="quantityeq" class="css-icon-plus-circle" style="width: 30px;height:30px;"></span>
+
+                </div>
+<%--                <div class="total-price">--%>
+<%--                    <div id="price" style="display:none">0.00</div>--%>
+<%--                    支付金额：<span class="tprice">￥0.00</span>--%>
+<%--                </div>--%>
+            </div>
+            <div class="btn" id="submit1">
+                <button name="check_pay" onclick="gotoConfirm()">确认订单</button>
+            </div>
+        </div>
+    </div>
+<div class="divBtn" style="height:50px; position: fixed;bottom: 0;width:100%">
+    <div class="btn1" style="height:50px">
+        <div class="btnMain1" style="height:50px">
+            <div class="btTxt1"><a href="https://beian.miit.gov.cn" target="_blank" style="color: #fdc078;">山南宇环软件 版权所有 藏ICP备2024001714号</a> </div>
+        </div>
+    </div>
+</div>
+
+
+<style>#buy-protocol img{width:100%}</style>
+</div>
+<script>
+
+    $('body').on('click','#goodslist .item',function () {
+        $('#goodslist .item').removeClass('active');
+        $(this).addClass('active');
+        //alert($(this).attr('value'));
+        //selectgoodid2($(this).attr('value'));
+    });
+
+    function gotoConfirm() {
+        //alert($('#goodslist .item.active').attr('value'));
+        var ids = $('#goodslist .item.active').attr('value')
+        var quantity = $("input[name='quantity']").val();
+        var userGame = $("input[name='userGame']").val();
+        var phone = $("input[name='contact']").val();
+
+        var serviceRange = $('#fruits').find('option:selected').text(); // 获取选中的文本
+        //alert("选中的值是：" + serviceRange);
+
+        var userRole = $("input[name='userRole']").val();
+        if (phone == null || phone=='') {
+            showToast('error', '', '您忘了输入电话号码！');
+            return;
+        }
+        if (userRole == null || userRole=='') {
+            showToast('error', '', '您忘了输入角色！');
+            return;
+        }
+        if (quantity == null || quantity < 1) {
+            showToast('error', '', '您忘了输入购买数量！');
+            return;
+        }
+        if (quantity > 999) {
+            showToast('error', '', '大佬轻点，商品不够啦！');
+            return;
+        }
+
+        var aliPay = $('#pay_item_58').is(":checked");
+        var wxpay = $('#pay_item_63').is(":checked");
+        if (aliPay == true) {
+            //alert("您选择了支付宝");
+            window.location.href = "/log/gotoConfirm?ids="+ids+"&quantity="+quantity+"&userGame="+userRole+"&phone="+phone +"&serviceRange="+serviceRange;
+        }
+        else if (wxpay == true) {
+            //alert("您选择了微信");
+            window.location.href = "/log/gotoWxPayConfirm?ids="+ids+"&quantity="+quantity+"&userGame="+userRole+"&phone="+phone +"&serviceRange="+serviceRange;
+        }
+
+        //alert($($('#pay_item_' + $(this).data('pid'))).val());
+        //alert("/log/gotoConfirm?ids="+ids+"&quantity="+quantity);
+       // window.location.href = "/log/gotoConfirm?ids="+ids+"&quantity="+quantity+"&userGame="+userRole+"&phone="+phone +"&serviceRange="+serviceRange;
+    }
+
+    $('#quantityeq').click(
+        function () {
+            var quantity = $("input[name='quantity']").val();
+            quantity++;
+            $("input[name='quantity']").val(quantity);
+            changequantity2();
+        }
+    );
+    $('#quantityex').click(
+        function () {
+            var quantity = $("input[name='quantity']").val();
+            quantity--;
+            if(quantity<0)quantity=0;
+            $("input[name='quantity']").val(quantity);
+            changequantity2();
+        }
+    );
+    //支付选择
+    $('.paytype-item').click(function () {
+        $('.paytype-item').removeClass('on');
+        $('.paytype-item').prop("checked", false);
+        $(this).addClass('on');
+        $('#pay_item_' + $(this).data('pid')).prop("checked", true);
+        //alert($($('#pay_item_' + $(this).data('pid'))).val());
+
+
+    })
+
+    $(function () {
+        $('.paytype-item:eq(0)')[0].click();
+    })
+</script>
+<script>
+    function checkCoupon2() {
+        var couponcode = $.trim($('[name=couponcode]').val());
+        if (cateid == 0) {
+            cateid = $('#cateid').val();
+        }
+        $('#checkcoupon').show();
+        $.post('/ajax/checkcoupon', {
+            couponcode: couponcode,
+            userid: userid,
+            cateid: cateid,
+            t: new Date().getTime()
+        }, function (data) {
+            if (data) {
+                data = eval(data);
+                if (data.result == 0) {
+                    $('#checkcoupon').html(data.msg);
+                    $('[name=is_coupon]').val("0");
+                } else if (data.result == 1) {
+                    $('[name=coupon_ctype]').val(data.ctype);
+                    $('[name=coupon_value]').val(data.coupon);
+                    $('[name=is_coupon]').val("1");
+                    $('#checkcoupon').html('<span class="blue">此优惠券可用</span>');
+                    goodschk();
+                } else {
+                    $('#checkcoupon').html('验证失败！');
+                }
+            }
+        }, "json");
+    }
+
+    function is_pwdforsearch2() {
+        var pwdforsearch2 = $("input[name='pwdforsearch2']").val();
+        if (pwdforsearch2 != '') {
+            $("input[name='is_pwdforsearch2']").val("1");
+        } else {
+            $("input[name='is_pwdforsearch2']").val("");
+        }
+    }
+
+    function is_pwdforsearch() {
+        var pwdforsearch1 = $("input[name='pwdforsearch1']").val();
+        if (pwdforsearch1 != '') {
+            $("input[name='is_pwdforsearch2']").val("1");
+        } else {
+            $("input[name='is_pwdforsearch2']").val("");
+        }
+    }
+    $('input[name="is_rev_sms"]').click(function () {
+        if ($(this).is(':checked')) {
+            $('[name=sms_price]').val("0.1");
+            $('.choose_sms').addClass('on');
+            $('.choose_email').removeClass('on');
+            $(".email-show").hide();
+            $("#email").prop("checked", false);
+
+            console.log('email1');
+        } else {
+            console.log('email2');
+            $('[name=sms_price]').val(0);
+            $('.choose_sms').removeClass('on');
+        }
+        goodDiscount();
+        goodschk();
+        updateContactLimit();
+    });
+</script>
+
+</body>
+</html>

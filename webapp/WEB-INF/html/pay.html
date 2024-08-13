@@ -1,0 +1,50 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>微信支付(830F4C248003CE54)</title>
+  <style>
+    *{padding:0;margin:0;}
+    body{background-color:#f1f1f1;}
+    #main{margin:0 auto 50px auto;border:1px solid #ccc;border-radius:5px;background-color:#fff;width:400px;}
+    .content{padding:20px 15px}
+    dl{margin:15px 0;}
+    dl dd{padding:5px 0;color:#333;text-align:left;}
+    dl dd span{font-size:1.3em;}
+    .btn{display:block;background-color:#2BAD13;color:#fff;text-decoration:none;padding:8px 0;text-align:center;border-radius:3px;}
+    #logo{margin-top:30px;background:url(./assets/images/logo.png) center center no-repeat;height:50px;}
+  </style>
+  <script type="text/javascript" src="./assets/js/jquery.min.js"></script>
+</head>
+
+<body>
+<div id="logo"></div>
+<div id="main">
+  <div class="content">
+    <dl>
+      <dd>订单号码：<span>830F4C248003CE54</span></dd>
+      <dd>付款金额：<span>3.05</span>元</dd>
+      <dd style="text-align:center"><img src="/qr/create?url=https%3A%2F%2Fpay1.nuofanpay.com%2Forder%3Fcode%3D20240723NF011C3E669F9CB590F48%26mid%3D35" style="width:100%"></dd>
+      <dd style="text-align:center" id="msgContent">请使用微信APP扫描二维码支付。</dd>
+    </dl>
+  </div>
+</div>
+</body>
+</html>
+<script>
+  function oderquery(t){
+    var orderid='830F4C248003CE54';
+    $.get('query.php',{orderid:orderid},function(ret){
+      if(ret.status=='1'){
+        window.location.href='result.php?orderid=830F4C248003CE54';
+      }
+    },'json');
+
+    t=t+1;
+    setTimeout('oderquery('+t+')',1000);
+  }
+
+  setTimeout('oderquery(1)',5000);
+</script>
